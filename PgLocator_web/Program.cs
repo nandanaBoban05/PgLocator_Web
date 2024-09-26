@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using PgLocator_web.Data;
+
 namespace PgLocator_web
 {
     public class Program
@@ -14,6 +17,23 @@ namespace PgLocator_web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
+            // enable cors
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200")
+                                .AllowAnyMethod()
+                                .AllowAnyHeader();
+                    });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -24,6 +44,10 @@ namespace PgLocator_web
             }
 
             app.UseHttpsRedirection();
+
+
+            app.UseRouting();
+            app.UseCors("AllowSpecificOrigins");
 
             app.UseAuthorization();
 
