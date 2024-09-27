@@ -177,7 +177,6 @@ namespace PgLocator_web.Controllers
             return NoContent();
         }
 
-        // 
 
         // Add Room Pricing
         [HttpPost("AddRoomPricing")]
