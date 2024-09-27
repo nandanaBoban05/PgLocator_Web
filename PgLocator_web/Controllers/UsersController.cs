@@ -21,6 +21,54 @@ namespace PgLocator_web.Controllers
             _context = context;
         }
 
+        [HttpPost]
+        [Route("Register")]
+        public async Task<IActionResult> Register(User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingUser = await _context.User.FirstOrDefaultAsync(x => x.Email == user.Email);
+            if (existingUser != null)
+            {
+                return BadRequest("User already exists with the same email address");
+            }
+
+            var login = new Login
+            {
+                Username = user.Email, 
+                Password = user.Password,
+                Role = "User" 
+            };
+
+            _context.Login.Add(login);
+            await _context.SaveChangesAsync(); 
+
+            user.Lid = login.Lid; 
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User registered successfully");
+        }
+
+
+        [HttpPost]
+        [Route("Login")]
+        public IActionResult Login(Login login)
+        {
+            var user = _context.User.FirstOrDefault(x => x.Name == login.Username && x.Password == login.Password);
+            if (user != null)
+            {
+                return Ok(new { user.Uid, user.Name, user.Email });
+            }
+            return Unauthorized("Invalid credentials");
+        }
+
+
+
+
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()

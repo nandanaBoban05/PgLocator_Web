@@ -30,15 +30,15 @@ namespace PgLocator_web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Lid"));
 
-                    b.Property<string>("LoginName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -87,8 +87,9 @@ namespace PgLocator_web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("Dob")
-                        .HasColumnType("date");
+                    b.Property<string>("Dob")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -98,6 +99,10 @@ namespace PgLocator_web.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Ownername")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -112,6 +117,60 @@ namespace PgLocator_web.Migrations
                     b.HasKey("Oid");
 
                     b.ToTable("Owner");
+
+                    b.HasData(
+                        new
+                        {
+                            Oid = 1,
+                            Adress = "456 Elm Street, Springfield, IL, USA",
+                            Chatlink = "https://chat.whatsapp.com/examplelink1",
+                            Dob = "1990-04-15",
+                            Email = "johndoe@example.com",
+                            Lid = 1,
+                            Ownername = "John",
+                            Password = "John",
+                            Phone = "+1234567890",
+                            Whatsapp = "+1234567890"
+                        },
+                        new
+                        {
+                            Oid = 2,
+                            Adress = "789 Maple Avenue, Springfield, IL, USA",
+                            Chatlink = "https://chat.whatsapp.com/examplelink2",
+                            Dob = "1985-09-20",
+                            Email = "janesmith@example.com",
+                            Lid = 102,
+                            Ownername = "Jane",
+                            Password = "Jane",
+                            Phone = "+1987654321",
+                            Whatsapp = "+1987654321"
+                        },
+                        new
+                        {
+                            Oid = 3,
+                            Adress = "123 Oak Drive, Springfield, IL, USA",
+                            Chatlink = "https://chat.whatsapp.com/examplelink3",
+                            Dob = "1992-11-30",
+                            Email = "alicejohnson@example.com",
+                            Lid = 103,
+                            Ownername = "Alice",
+                            Password = "Alice",
+                            Phone = "+1123456789",
+                            Whatsapp = "+1123456789"
+                        },
+                        new
+                        {
+                            Oid = 4,
+                            Adress = "321 Pine Street, Springfield, IL, USA",
+                            Chatlink = "https://chat.whatsapp.com/examplelink4",
+                            Dob = "1988-05-12",
+                            Email = "bobbrown@example.com",
+                            Lid = 104,
+                            Ownername = "Bob",
+                            Password = "Bob",
+                            Phone = "+1456789012",
+                            Whatsapp = "+1456789012"
+                        });
                 });
 
             modelBuilder.Entity("PgLocator_web.Models.Pg", b =>
@@ -266,8 +325,9 @@ namespace PgLocator_web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Uid"));
 
-                    b.Property<DateOnly>("Dob")
-                        .HasColumnType("date");
+                    b.Property<string>("Dob")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -284,6 +344,10 @@ namespace PgLocator_web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -295,6 +359,56 @@ namespace PgLocator_web.Migrations
                     b.HasKey("Uid");
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            Uid = 1,
+                            Dob = "1990-05-15",
+                            Email = "alice.johnson@example.com",
+                            Gender = "Female",
+                            Lid = 1,
+                            Name = "Alice Johnson",
+                            Password = "Alice",
+                            Phone = "123-456-7890",
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            Uid = 2,
+                            Dob = "1988-09-22",
+                            Email = "bob.smith@example.com",
+                            Gender = "Male",
+                            Lid = 2,
+                            Name = "Bob Smith",
+                            Password = "Bob",
+                            Phone = "987-654-3210",
+                            Status = "Inactive"
+                        },
+                        new
+                        {
+                            Uid = 3,
+                            Dob = "1995-12-03",
+                            Email = "charlie.brown@example.com",
+                            Gender = "Male",
+                            Lid = 3,
+                            Name = "Charlie Brown",
+                            Password = "Charlie",
+                            Phone = "555-123-4567",
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            Uid = 4,
+                            Dob = "1992-03-08",
+                            Email = "diana.prince@example.com",
+                            Gender = "Female",
+                            Lid = 4,
+                            Name = "Diana Prince",
+                            Password = "Diana",
+                            Phone = "444-987-6543",
+                            Status = "Active"
+                        });
                 });
 #pragma warning restore 612, 618
         }
