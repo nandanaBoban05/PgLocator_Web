@@ -128,17 +128,56 @@ namespace PgLocator_web.Controllers
 
             var filteredPg = Pgserach.ToList();
 
+
             if (!filteredPg.Any())
             {
-                return NotFound("No books found matching the search criteria.");
+                var message = "No records found matching the search criteria.";
+                if (!string.IsNullOrEmpty(pgname)) message += $" PG Name: {pgname}.";
+                if (!string.IsNullOrEmpty(district)) message += $" District: {district}.";
+                if (!string.IsNullOrEmpty(place)) message += $" Place: {place}.";
+                return NotFound(message);
             }
 
             return Ok(filteredPg);
         }
 
+        //[HttpGet("pgsearch")]
+        //public async Task<IActionResult> SearchBooks(string? pgname = null, string? district = null, string? place = null)
+        //{
+        //    var pgSearch = _context.Pg.AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(pgname))
+        //    {
+        //        pgSearch = pgSearch.Where(b => b.Pgname.Contains(pgname, StringComparison.OrdinalIgnoreCase));
+        //    }
+
+        //    if (!string.IsNullOrEmpty(district))
+        //    {
+        //        pgSearch = pgSearch.Where(b => b.District.Contains(district, StringComparison.OrdinalIgnoreCase));
+        //    }
+
+        //    if (!string.IsNullOrEmpty(place))
+        //    {
+        //        pgSearch = pgSearch.Where(b => b.Place.Contains(place, StringComparison.OrdinalIgnoreCase));
+        //    }
+
+        //    var filteredPg = await pgSearch.ToListAsync();
+
+        //    if (!filteredPg.Any())
+        //    {
+        //        var message = "No records found matching the search criteria.";
+        //        if (!string.IsNullOrEmpty(pgname)) message += $" PG Name: {pgname}.";
+        //        if (!string.IsNullOrEmpty(district)) message += $" District: {district}.";
+        //        if (!string.IsNullOrEmpty(place)) message += $" Place: {place}.";
+        //        return NotFound(message);
+        //    }
+
+        //    return Ok(filteredPg);
+        //}
+
 
         ////seraches
-      
+
         //[HttpGet("pgsearchs")]
         //public async Task<ActionResult<IEnumerable<Pg>>> SearchPg(string pg)
         //{
