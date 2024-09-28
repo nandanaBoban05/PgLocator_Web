@@ -59,38 +59,63 @@ namespace PgLocator_web.Controllers
             return Unauthorized("Invalid credentials.");
         }
 
-        // Create or Update PG listing
-        [HttpPost("Pg")]
-        public async Task<IActionResult> CreateOrUpdatePg(Pg pg)
+        // Create PG List
+        [HttpPost("CreatePg")]
+        public async Task<IActionResult> CreatePg([FromBody] Pg pg)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (pg == null)
+                return BadRequest("PG data is required.");
 
-            if (pg.Pgid > 0)
-            {
-                _context.Entry(pg).State = EntityState.Modified;
-            }
-            else
-            {
-                _context.Pg.Add(pg);
-            }
-
+            _context.Pg.Add(pg);
             await _context.SaveChangesAsync();
-            return Ok(pg);
+            return CreatedAtAction(nameof(CreatePg), new { id = pg.Pgid }, pg);
         }
 
-        // View PG listings for the Owner
-        [HttpGet("MyPgs/{ownerId}")]
-        public async Task<ActionResult<IEnumerable<Pg>>> GetMyPgs(int ownerId)
+        // View PG List
+        [HttpGet("ViewPgList")]
+        public async Task<IActionResult> ViewPgList(int ownerId)
         {
-            return await _context.Pg.Where(pg => pg.Oid == ownerId).ToListAsync();
+            var pgList = await _context.Pg.Where(p => p.Oid == ownerId).ToListAsync();
+            return Ok(pgList);
         }
 
-        // Delete PG listing
-        [HttpDelete("Pg/{pgId}")]
-        public async Task<IActionResult> DeletePg(int pgId)
+        // Update PG Listing
+        [HttpPut("UpdatePg/{id}")]
+        public async Task<IActionResult> UpdatePg(int id, [FromBody] Pg pg)
         {
-            var pg = await _context.Pg.FindAsync(pgId);
+            if (pg == null)
+                return BadRequest("PG data is required.");
+
+            var existingPg = await _context.Pg.FindAsync(id);
+            if (existingPg == null)
+                return NotFound("PG listing not found.");
+
+            existingPg.Pgname = pg.Pgname;
+            existingPg.Description = pg.Description;
+            existingPg.Adress = pg.Adress;
+            existingPg.Pin = pg.Pin;
+            existingPg.Gender = pg.Gender;
+            existingPg.Image = pg.Image;
+            existingPg.Amentities = pg.Amentities;
+            existingPg.Foodavailable = pg.Foodavailable;
+            existingPg.Meal = pg.Meal;
+            existingPg.Status = pg.Status;
+            existingPg.Rules = pg.Rules;
+            existingPg.District = pg.District;
+            existingPg.Place = pg.Place;
+            existingPg.Latitude = pg.Latitude;
+            existingPg.Longitude = pg.Longitude;
+
+            _context.Entry(existingPg).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // Delete PG Listing
+        [HttpDelete("DeletePg/{id}")]
+        public async Task<IActionResult> DeletePg(int id)
+        {
+            var pg = await _context.Pg.FindAsync(id);
             if (pg == null)
                 return NotFound("PG listing not found.");
 
@@ -99,72 +124,137 @@ namespace PgLocator_web.Controllers
             return NoContent();
         }
 
-        // Upload media for PG
-        [HttpPost("Pg/{pgId}/Media")]
-        public async Task<IActionResult> UploadMedia(int pgId, [FromForm] Media media)
+
+        // Add Media for PG
+        [HttpPost("AddMedia")]
+        public async Task<IActionResult> AddMedia([FromBody] Media media)
         {
             if (media == null)
-                return BadRequest("Media cannot be null.");
+                return BadRequest("Media data is required.");
 
-            media.Pid = pgId;
             _context.Media.Add(media);
             await _context.SaveChangesAsync();
-
-            return Ok(media);
+            return CreatedAtAction(nameof(AddMedia), new { id = media.Mid }, media);
         }
 
-        // View media for PG
-        [HttpGet("Pg/{pgId}/Media")]
-        public async Task<ActionResult<IEnumerable<Media>>> GetMediaForPg(int pgId)
+        // View Media for PG
+        [HttpGet("ViewMedia/{pgId}")]
+        public async Task<IActionResult> ViewMedia(int pgId)
         {
-            return await _context.Media.Where(m => m.Pid == pgId).ToListAsync();
+            var mediaList = await _context.Media.Where(m => m.Pid == pgId).ToListAsync();
+            return Ok(mediaList);
         }
 
-        // Update pricing and availability
-        [HttpPut("Pg/{pgId}/Room")]
-        public async Task<IActionResult> UpdateRoomPricing(int pgId, Room room)
+        // Update Media
+        [HttpPut("UpdateMedia/{id}")]
+        public async Task<IActionResult> UpdateMedia(int id, [FromBody] Media media)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (media == null)
+                return BadRequest("Media data is required.");
 
-            var existingRoom = await _context.Room.FirstOrDefaultAsync(r => r.Pid == pgId);
+            var existingMedia = await _context.Media.FindAsync(id);
+            if (existingMedia == null)
+                return NotFound("Media not found.");
+
+            existingMedia.Type = media.Type;
+            existingMedia.Url = media.Url;
+
+            _context.Entry(existingMedia).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // Delete Media
+        [HttpDelete("DeleteMedia/{id}")]
+        public async Task<IActionResult> DeleteMedia(int id)
+        {
+            var media = await _context.Media.FindAsync(id);
+            if (media == null)
+                return NotFound("Media not found.");
+
+            _context.Media.Remove(media);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+
+        // Add Room Pricing
+        [HttpPost("AddRoomPricing")]
+        public async Task<IActionResult> AddRoomPricing([FromBody] Room room)
+        {
+            if (room == null)
+                return BadRequest("Room data is required.");
+
+            _context.Room.Add(room);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(AddRoomPricing), new { id = room.Rid }, room);
+        }
+
+        // View Room Pricing
+        [HttpGet("ViewRoomPricing/{pgId}")]
+        public async Task<IActionResult> ViewRoomPricing(int pgId)
+        {
+            var roomPricingList = await _context.Room.Where(r => r.Pid == pgId).ToListAsync();
+            return Ok(roomPricingList);
+        }
+
+        // Update Room Pricing
+        [HttpPut("UpdateRoomPricing/{id}")]
+        public async Task<IActionResult> UpdateRoomPricing(int id, [FromBody] Room room)
+        {
+            if (room == null)
+                return BadRequest("Room data is required.");
+
+            var existingRoom = await _context.Room.FindAsync(id);
             if (existingRoom == null)
                 return NotFound("Room not found.");
 
             existingRoom.Price = room.Price;
-            existingRoom.Availability = room.Availability;
-            existingRoom.Totalroom = room.Totalroom;
+            existingRoom.Deposit = room.Deposit;
             existingRoom.Services = room.Services;
             existingRoom.Roomtype = room.Roomtype;
             existingRoom.Facility = room.Facility;
+            existingRoom.Totalroom = room.Totalroom;
+            existingRoom.Availability = room.Availability;
 
             _context.Entry(existingRoom).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
-            return Ok(existingRoom);
+            return NoContent();
         }
 
-        // View reviews for a PG
-        [HttpGet("Pg/{pgId}/Reviews")]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviewsForPg(int pgId)
+        // Delete Room Pricing
+        [HttpDelete("DeleteRoomPricing/{id}")]
+        public async Task<IActionResult> DeleteRoomPricing(int id)
         {
-            return await _context.Review.Where(r => r.Pid == pgId).ToListAsync();
+            var room = await _context.Room.FindAsync(id);
+            if (room == null)
+                return NotFound("Room not found.");
+
+            _context.Room.Remove(room);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // Respond to a review
-        [HttpPut("Reviews/{reviewId}")]
-        public async Task<IActionResult> RespondToReview(int reviewId, string response)
+        // View and Respond to Reviews
+        [HttpGet("ViewReviews/{pgId}")]
+        public async Task<IActionResult> ViewReviews(int pgId)
+        {
+            var reviews = await _context.Review.Where(r => r.Pid == pgId).ToListAsync();
+            return Ok(reviews);
+        }
+
+        [HttpPost("RespondToReview/{reviewId}")]
+        public async Task<IActionResult> RespondToReview(int reviewId, [FromBody] string response)
         {
             var review = await _context.Review.FindAsync(reviewId);
             if (review == null)
                 return NotFound("Review not found.");
 
-            review.Reviewteaxt += $" - Response: {response}";
-            _context.Entry(review).State = EntityState.Modified;
+            review.Reviewteaxt += "\nResponse: " + response; // Append response to review text
             await _context.SaveChangesAsync();
-
-            return Ok("Response added to the review.");
+            return NoContent();
         }
+
 
         // Edit PG Owner profile
         [HttpPut("Profile/{ownerId}")]

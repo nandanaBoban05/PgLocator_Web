@@ -152,5 +152,84 @@ namespace PgLocator_web.Controllers
         {
             return _context.User.Any(e => e.Uid == id);
         }
+
+        // Edit user profile
+        [HttpPut]
+        [Route("EditProfile/{userId}")]
+        public async Task<IActionResult> EditProfile(int userId, User updatedUser)
+        {
+            var user = await _context.User.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            user.Name = updatedUser.Name;
+            user.Email = updatedUser.Email;
+            user.Phone = updatedUser.Phone;
+
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("User profile updated successfully");
+        }
+
+        // View PG owners
+        [HttpGet]
+        [Route("ViewPgOwners")]
+        public async Task<IActionResult> ViewPgOwners()
+        {
+            var owners = await _context.Owner.ToListAsync();
+            return Ok(owners);
+        }
+
+        // Add a review
+        [HttpPost]
+        [Route("AddReview")]
+        public async Task<IActionResult> AddReview(Review review)
+        {
+            _context.Review.Add(review);
+            await _context.SaveChangesAsync();
+            return Ok("Review added successfully");
+        }
+
+        // Edit a review
+        [HttpPut]
+        [Route("EditReview/{reviewId}")]
+        public async Task<IActionResult> EditReview(int reviewId, Review updatedReview)
+        {
+            var review = await _context.Review.FindAsync(reviewId);
+            if (review == null)
+            {
+                return NotFound("Review not found");
+            }
+
+            review.Rating = updatedReview.Rating;
+            review.Reviewteaxt = updatedReview.Reviewteaxt;
+            review.Reviewdate = updatedReview.Reviewdate;
+
+            _context.Entry(review).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("Review updated successfully");
+        }
+
+        // Delete a review
+        [HttpDelete]
+        [Route("DeleteReview/{reviewId}")]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            var review = await _context.Review.FindAsync(reviewId);
+            if (review == null)
+            {
+                return NotFound("Review not found");
+            }
+
+            _context.Review.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return Ok("Review deleted successfully");
+        }
     }
 }
+    

@@ -110,5 +110,127 @@ namespace PgLocator_web.Controllers
 
             return Ok(approvedPgs);
         }
+
+
+        // Edit PG Listing
+        [HttpPut]
+        [Route("EditPg")]
+        public async Task<IActionResult> EditPg(int pgId, Pg updatedPg)
+        {
+            if (pgId != updatedPg.Pgid)
+            {
+                return BadRequest("PG ID mismatch");
+            }
+
+            var pg = await _context.Pg.FindAsync(pgId);
+            if (pg == null)
+            {
+                return NotFound("PG Listing not found");
+            }
+
+            // Update properties
+            pg.Pgname = updatedPg.Pgname;
+            pg.Description = updatedPg.Description;
+            pg.Adress = updatedPg.Adress;
+            pg.Pin = updatedPg.Pin;
+            pg.Gender = updatedPg.Gender;
+            pg.Image = updatedPg.Image;
+            pg.Amentities = updatedPg.Amentities;
+            pg.Foodavailable = updatedPg.Foodavailable;
+            pg.Meal = updatedPg.Meal;
+            pg.Status = updatedPg.Status;
+            pg.Rules = updatedPg.Rules;
+            pg.District = updatedPg.District;
+            pg.Place = updatedPg.Place;
+            pg.Latitude = updatedPg.Latitude;
+            pg.Longitude = updatedPg.Longitude;
+
+            _context.Entry(pg).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("PG Listing updated successfully");
+        }
+
+        // Delete PG Listing
+        [HttpDelete]
+        [Route("DeletePg/{pgId}")]
+        public async Task<IActionResult> DeletePg(int pgId)
+        {
+            var pg = await _context.Pg.FindAsync(pgId);
+            if (pg == null)
+            {
+                return NotFound("PG Listing not found");
+            }
+
+            _context.Pg.Remove(pg);
+            await _context.SaveChangesAsync();
+
+            return Ok("PG Listing deleted successfully");
+        }
+
+        // View all reviews
+        [HttpGet]
+        [Route("ViewReviews")]
+        public async Task<IActionResult> ViewReviews()
+        {
+            var reviews = await _context.Review.ToListAsync();
+            return Ok(reviews);
+        }
+
+        // Delete a review
+        [HttpDelete]
+        [Route("DeleteReview/{reviewId}")]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            var review = await _context.Review.FindAsync(reviewId);
+            if (review == null)
+            {
+                return NotFound("Review not found");
+            }
+
+            _context.Review.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return Ok("Review deleted successfully");
+        }
+
+        // Edit User (for PG Owner or User)
+        [HttpPut]
+        [Route("EditUser")]
+        public async Task<IActionResult> EditUser(int userId, Login updatedLogin)
+        {
+            var user = await _context.Login.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            user.Username = updatedLogin.Username; 
+            user.Password = updatedLogin.Password;
+            user.Role = updatedLogin.Role;
+
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("User updated successfully");
+        }
+
+
+        // Delete User
+        [HttpDelete]
+        [Route("DeleteUser/{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            var user = await _context.Login.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            _context.Login.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User deleted successfully");
+        }
     }
 }
