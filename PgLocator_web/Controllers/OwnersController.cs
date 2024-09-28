@@ -189,5 +189,31 @@ namespace PgLocator_web.Controllers
 
             return owner;
         }
+
+        [HttpGet("Approved")]
+        public async Task<IActionResult> GetOwnersByRole([FromQuery] string role)
+        {
+            if (string.IsNullOrEmpty(role))
+            {
+                return BadRequest("Role is required.");
+            }
+
+            var owners = await (from owner in _context.Owner
+                                join login in _context.Login on owner.Lid equals login.Lid
+                                where login.Role == role
+                                select owner).ToListAsync();
+
+            if (owners == null || !owners.Any())
+            {
+                return NotFound("No owners found for the specified role.");
+            }
+
+            return Ok(owners);
+        }
+
+        
+
     }
 }
+
+
