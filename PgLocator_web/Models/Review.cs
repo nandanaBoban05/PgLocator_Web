@@ -7,8 +7,10 @@ namespace PgLocator_web.Models
     {
         [Key]
         public int Rid { get; set; }
+        
         [ForeignKey("Pg")]
         public int Pid { get; set; }
+        
         [ForeignKey("User")]
         public int Uid { get; set; }
         public string Rating { get; set; }
