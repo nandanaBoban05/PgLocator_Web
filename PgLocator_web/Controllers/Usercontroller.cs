@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -59,15 +60,33 @@ namespace PgLocator_web.Controllers
 
         }
 
-        [HttpPost]
-        [Route("Login")]
-        public IActionResult Login(User user) {
-            var User = _context.User.FirstOrDefault(x => x.Email == user.Email && x.Password == user.Password);
-            if (user != null)
+        //[HttpPost]
+        //[Route("Login")]
+        //public IActionResult Login(User user) {
+        //    var User = _context.User.FirstOrDefault(x => x.Email == user.Email && x.Password == user.Password);
+        //    if (user != null)
+        //    {
+        //        return Ok(user);
+        //    }
+        //    return BadRequest();
+        //}
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] Login loginModel)
+        {
+            var user = await _context.User
+                .FirstOrDefaultAsync(u => u.Email == loginModel.Email && u.Password == loginModel.Password &&u.Status==loginModel.Status);
+
+            if (user == null)
             {
-                return Ok(user);
+                return BadRequest(new { message = "Invalid username or password" });
             }
-            return BadRequest();
+
+            // Return success message and userId
+            return Ok(new
+            {
+                message = "Login successful",
+                userId = user.Uid  // Assuming the user's ID is UId
+            });
         }
 
         [HttpGet]
