@@ -12,8 +12,8 @@ using PgLocator_web.Data;
 namespace PgLocator_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240930062547_table design")]
-    partial class tabledesign
+    [Migration("20241001044857_first")]
+    partial class first
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
