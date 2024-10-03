@@ -174,5 +174,46 @@ namespace PgLocator_web.Controllers
             var reviews = _context.Review.Where(r => r.Uid == pgOwnerId).ToList();
             return Ok(reviews);
         }
+        //user search
+        [HttpGet("usersearch")]
+        public async Task<ActionResult<IEnumerable<User>>> SearchUsers(string username)
+        {
+            // Fetch users whose first name or email contains the search string
+            var user = await _context.User
+                .Where(b => b.FirstName.Contains(username) || b.Email.Contains(username))
+                .ToListAsync();
+
+
+            // Filter users based on role, checking if the role is "User"
+            var filteredusers = user.Where(user => user.Role == "user").ToList();
+
+            if (filteredusers.Any())
+            {
+                return Ok(filteredusers);
+            }
+
+            return NotFound("No users with the specified role found.");
+        }
+        [HttpGet("pgownersearch")]
+        public async Task<ActionResult<IEnumerable<User>>> SearchPgOwners(string username)
+        {
+            // Fetch users whose first name or email contains the search string
+            var users = await _context.User
+                .Where(b => b.FirstName.Contains(username) || b.Email.Contains(username))
+                .ToListAsync();
+
+            // Filter users based on role, checking if the role is "pgowner"
+            var filteredPgOwners = users.Where(user => user.Role == "pgowner" && user.Status == "Approved").ToList();
+
+            if (filteredPgOwners.Any())
+            {
+                return Ok(filteredPgOwners);
+            }
+
+            return NotFound("No PG owners with the specified role found.");
+        }
+
     }
+
 }
+
