@@ -21,7 +21,26 @@ namespace PgLocator_web.Controllers
         {
             _context = context;
         }
+        // Get users
+        [HttpGet]
+        [Route("GetUsers")]
+        public IActionResult GetUsers()
+        {
+            return Ok(_context.User.ToList());
+        }
 
+        // Get users by Id
+        [HttpGet]
+        [Route("GetUser/{id}")]
+        public IActionResult GetUsers(int id)
+        {
+            var user = _context.User.FirstOrDefault(x => x.Uid == id);
+            if (user != null)
+                return Ok();
+            else
+                return NoContent();
+        }
+        // User Registration
         [HttpPost]
         [Route("Registration")]
         public IActionResult Registration(User user)
@@ -68,10 +87,19 @@ namespace PgLocator_web.Controllers
             }
         }
 
-
+        // User Login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login login)
         {
+            if(login.Email == "admin@gmail.com" && login.Password == "Adminpass")
+            {
+                return Ok(new
+                {
+                    message = "Login sucessful",
+                    userId = "Admin",
+                    role = "Admin"
+                });
+            }
             var user = await _context.User
                 .FirstOrDefaultAsync(u => u.Email == login.Email && u.Password == login.Password);
 
@@ -95,32 +123,11 @@ namespace PgLocator_web.Controllers
             return Ok(new
             {
                 message = "Login successful",
-                userId = user.Uid
-            });
+                userId = user.Uid,
+                role = user.Role            });
         }
 
-
-//  get users
-        [HttpGet]
-        [Route("GetUsers")]
-        public IActionResult GetUsers() {
-            return Ok(_context.User.ToList());
-        }
-
-        [HttpGet]
-        [Route("GetUser")]
-        public IActionResult GetUsers(int id)
-        {
-            var user = _context.User.FirstOrDefault(x => x.Uid == id);
-            if(user != null) 
-               return Ok();
-            else
-                return NoContent();
-        }
-
-
-        //edit user
-
+        // User Edit
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
         {
@@ -157,11 +164,8 @@ namespace PgLocator_web.Controllers
             return Ok(new { message = "User updated successfully" });
         }
 
-
-
-
         // Add Review
-        [HttpPost("add")]
+        [HttpPost("Review")]
         public async Task<IActionResult> AddReview([FromBody] Review review)
         {
             // Check if user is active
@@ -179,7 +183,7 @@ namespace PgLocator_web.Controllers
         }
 
         // Edit Review
-        [HttpPut("edit/{id}")]
+        [HttpPut("Review/{id}")]
         public async Task<IActionResult> EditReview(int id, [FromBody] Review updatedReview)
         {
             var review = await _context.Review.FirstOrDefaultAsync(r => r.Rid == id);
@@ -197,7 +201,7 @@ namespace PgLocator_web.Controllers
         }
 
         // View All Reviews for a Specific Pg (by Pid)
-        [HttpGet("view/{pid}")]
+        [HttpGet("Review/{pid}")]
         public async Task<IActionResult> ViewReviews(int pid)
         {
             var reviews = await _context.Review
@@ -213,7 +217,7 @@ namespace PgLocator_web.Controllers
         }
 
         // Delete Review
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("Review/{id}")]
         public async Task<IActionResult> DeleteReview(int id)
         {
             var review = await _context.Review.FirstOrDefaultAsync(r => r.Rid == id);
