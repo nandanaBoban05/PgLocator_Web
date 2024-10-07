@@ -244,8 +244,39 @@ namespace PgLocator_web.Controllers
             // Return the filtered list of users
             return Ok(filteredUsers);
         }
+        //approvedOwners
+        [HttpGet("approvedOwners")]
+        public IActionResult approvedOwners(string? email = null)
+        {
+            // Check if _context is not null
+            if (_context == null)
+            {
+                return StatusCode(500, "Database context is not initialized.");
+            }
 
+            // Start with all users whose status is pending and role is pgowner
+            var users = _context.User
+                .Where(u => u.Status.ToLower() == "approved" && u.Role.ToLower() == "pgowner")
+                .AsQueryable();
 
+            // Filter by email if provided
+            if (!string.IsNullOrEmpty(email))
+            {
+                users = users.Where(u => u.Email.ToLower().Contains(email.ToLower()));
+            }
+
+            // Convert filtered results to a list
+            var filteredUsers = users.ToList();
+
+            // If no users match, return a 404 NotFound response
+            if (!filteredUsers.Any())
+            {
+                return NotFound("No pending users found matching the search criteria.");
+            }
+
+            // Return the filtered list of users
+            return Ok(filteredUsers);
+        }
 
 
     }
