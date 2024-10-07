@@ -279,6 +279,114 @@ namespace PgLocator_web.Controllers
         }
 
 
+        [HttpPost]
+        [Route("useraction")]
+        public async Task<IActionResult> useraction(int userId, string action)
+        {
+            // Find the user (PG Owner) by userId
+            var user = await _context.User.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            // Check if the user role is PG Owner
+            if (user.Role.ToLower() != "user")
+            {
+                return BadRequest("Not a User");
+            }
+
+            // Admin action: Approve or Reject the PG Owner
+            if (action.ToLower() == "ban")
+            {
+                user.Status = "banned";
+            }
+            else if (action.ToLower() == "unban")
+            {
+                user.Status = "active";
+            }
+            else
+            {
+                return BadRequest("Invalid action. Use 'ban' or 'unban'");
+            }
+
+            // Update the user's status
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok($"User has been {action}ed successfully.");
+        }
+
+        //view banned user
+        [HttpGet("searchbanneduser")]
+        public IActionResult searchbanneduser(string? email = null)
+        {
+            // Check if _context is not null
+            if (_context == null)
+            {
+                return StatusCode(500, "Database context is not initialized.");
+            }
+
+            // Start with all users whose status is pending and role is pgowner
+            var users = _context.User
+                .Where(u => u.Status.ToLower() == "banned" && u.Role.ToLower() == "user")
+                .AsQueryable();
+
+            // Filter by email if provided
+            if (!string.IsNullOrEmpty(email))
+            {
+                users = users.Where(u => u.Email.ToLower().Contains(email.ToLower()));
+            }
+
+            // Convert filtered results to a list
+            var filteredUsers = users.ToList();
+
+            // If no users match, return a 404 NotFound response
+            if (!filteredUsers.Any())
+            {
+                return NotFound("No banned users found matching the search criteria.");
+            }
+
+            // Return the filtered list of users
+            return Ok(filteredUsers);
+        }
+
+        //view banned user
+        [HttpGet("searchactiveuser")]
+        public IActionResult searchactiveuser(string? email = null)
+        {
+            // Check if _context is not null
+            if (_context == null)
+            {
+                return StatusCode(500, "Database context is not initialized.");
+            }
+
+            // Start with all users whose status is pending and role is pgowner
+            var users = _context.User
+                .Where(u => u.Status.ToLower() == "active" && u.Role.ToLower() == "user")
+                .AsQueryable();
+
+            // Filter by email if provided
+            if (!string.IsNullOrEmpty(email))
+            {
+                users = users.Where(u => u.Email.ToLower().Contains(email.ToLower()));
+            }
+
+            // Convert filtered results to a list
+            var filteredUsers = users.ToList();
+
+            // If no users match, return a 404 NotFound response
+            if (!filteredUsers.Any())
+            {
+                return NotFound("No users found matching the search criteria.");
+            }
+
+            // Return the filtered list of users
+            return Ok(filteredUsers);
+        }
+
+
+
     }
 
 }
