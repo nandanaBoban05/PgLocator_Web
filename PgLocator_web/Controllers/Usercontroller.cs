@@ -97,7 +97,7 @@ namespace PgLocator_web.Controllers
                 {
                     message = "Login sucessful",
                     userId = "Admin",
-                    role = "Admin"
+                    role = "admin"
                 });
             }
             var user = await _context.User
@@ -107,7 +107,16 @@ namespace PgLocator_web.Controllers
             {
                 return BadRequest(new { message = "Invalid username or password" });
             }
-
+            // Admins should not go through the 'approval' process
+            if (user.Role == "admin")
+            {
+                return Ok(new
+                {
+                    message = "Login successful",
+                    userId = user.Uid,
+                    role = user.Role
+                });
+            }
             // Check if the user is active (for regular users) or approved (for PgOwners)
             if (user.Role == "PgOwner" && user.Status != "Approved")
             {
@@ -124,7 +133,8 @@ namespace PgLocator_web.Controllers
             {
                 message = "Login successful",
                 userId = user.Uid,
-                role = user.Role            });
+                role = user.Role   
+            });
         }
 
         // User Edit
