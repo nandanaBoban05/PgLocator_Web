@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PgLocator_web.Models;
+using PgLocator_web.Models.Enitites;
 
 namespace PgLocator_web.Data
 {
@@ -8,6 +9,8 @@ namespace PgLocator_web.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public DbSet<Contact> Contact { get; set; }
+
 
         public DbSet<User> User { get; set; }
         public DbSet<Media> Media { get; set; }
