@@ -300,10 +300,16 @@ namespace PgLocator_web.Controllers
             if (action.ToLower() == "ban")
             {
                 user.Status = "banned";
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "User banned successfully." });
             }
             else if (action.ToLower() == "unban")
             {
                 user.Status = "active";
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "User unbanned successfully." });
             }
             else
             {
@@ -311,10 +317,10 @@ namespace PgLocator_web.Controllers
             }
 
             // Update the user's status
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            //_context.Entry(user).State = EntityState.Modified;
+            //await _context.SaveChangesAsync();
 
-            return Ok($"User has been {action}ed successfully.");
+            //return Ok($"User has been {action}ed successfully.");
         }
 
         //view banned user
