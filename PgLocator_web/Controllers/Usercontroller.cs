@@ -87,19 +87,19 @@ namespace PgLocator_web.Controllers
             }
         }
 
-        // User Login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login login)
         {
-            if(login.Email == "admin@gmail.com" && login.Password == "Adminpass")
+            if (login.Email == "admin@gmail.com" && login.Password == "Adminpass")
             {
                 return Ok(new
                 {
-                    message = "Login sucessful",
+                    message = "Login successful",
                     userId = "Admin",
                     role = "admin"
                 });
             }
+
             var user = await _context.User
                 .FirstOrDefaultAsync(u => u.Email == login.Email && u.Password == login.Password);
 
@@ -107,6 +107,7 @@ namespace PgLocator_web.Controllers
             {
                 return BadRequest(new { message = "Invalid username or password" });
             }
+
             // Admins should not go through the 'approval' process
             if (user.Role == "admin")
             {
@@ -117,13 +118,15 @@ namespace PgLocator_web.Controllers
                     role = user.Role
                 });
             }
-            // Check if the user is active (for regular users) or approved (for PgOwners)
-            if (user.Role == "PgOwner" && user.Status != "Approved")
+
+            // Check if the PgOwner is approved or active
+            if ((user.Role == "PgOwner"|| user.Role == "pgowner") && (user.Status == "pending"|| user.Status == "Pending" || user.Status == "rejected" || user.Status == "Rejected"))
             {
                 return BadRequest(new { message = "PgOwner is not approved yet. Please wait for admin approval." });
             }
 
-            if (user.Role == "User" && user.Status != "Active")
+            // Check if the user account is active
+            if ((user.Role == "User" || user.Role == "user") && (user.Status == "inactive" || user.Status == "Inactive" || user.Status == "banned" || user.Status == "Banned"))
             {
                 return BadRequest(new { message = "User account is inactive." });
             }
@@ -133,9 +136,10 @@ namespace PgLocator_web.Controllers
             {
                 message = "Login successful",
                 userId = user.Uid,
-                role = user.Role   
+                role = user.Role
             });
         }
+
 
         // User Edit
         [HttpPut("update/{id}")]
