@@ -392,6 +392,41 @@ namespace PgLocator_web.Controllers
         }
 
 
+        //view pending pg
+        [HttpGet("searchpendingpg")]
+        public IActionResult searchpendingpg(string? pgname = null)
+        {
+            // Check if _context is not null
+            if (_context == null)
+            {
+                return StatusCode(500, "Database context is not initialized.");
+            }
+
+            // Start with all pg whose status is pending 
+            var pgs = _context.Pg
+                .Where(u => u.Status.ToLower() == "pending")
+                .AsQueryable();
+
+            // Filter by pgname if provided
+            if (!string.IsNullOrEmpty(pgname))
+            {
+                pgs = pgs.Where(u => u.Pgname.ToLower().Contains(pgname.ToLower()));
+            }
+
+            // Convert filtered results to a list
+            var filteredpgs = pgs.ToList();
+
+            // If no pgs match, return a 404 NotFound response
+            if (!filteredpgs.Any())
+            {
+                return NotFound("No pending pgs found matching the search criteria.");
+            }
+
+            // Return the filtered list of pgs
+            return Ok(filteredpgs);
+        }
+
+
 
     }
 
