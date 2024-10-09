@@ -21,6 +21,57 @@ namespace PgLocator_web.Controllers
             _context = context;
         }
 
+
+        // POST: api/pg/register
+    [HttpPost("register")]
+    public IActionResult RegisterPG([FromBody] Pg pg)
+            {
+                if (pg == null)
+                {
+                    return BadRequest("PG data is null.");
+                }
+
+                try
+                {
+                    pg.Status = "Pending";  // Initial status as 'pending'
+                    _context.Pg.Add(pg);
+                    _context.SaveChanges();
+
+                    return Ok(new { message = "PG added and awaiting approval." });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
+
+
+        // GET: api/pg/owner/{ownerId}/approved
+        [HttpGet("owner/{ownerId}/approved")]
+        public IActionResult GetApprovedPGsForOwner(int ownerId)
+        {
+            try
+            {
+                var approvedPGs = _context.Pg
+                                          .Where(pg => pg.Uid == ownerId && pg.Status == "Approved")
+                                          .ToList();
+
+                if (!approvedPGs.Any())
+                {
+                    return NotFound($"No approved PGs found for owner with ID {ownerId}.");
+                }
+
+                return Ok(approvedPGs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
+
         // GET: api/Pg
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pg>>> GetPg()
@@ -41,7 +92,6 @@ namespace PgLocator_web.Controllers
 
             return pg;
         }
-
         // PUT: api/Pg/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

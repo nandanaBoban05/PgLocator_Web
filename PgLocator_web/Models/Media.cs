@@ -10,7 +10,7 @@ namespace PgLocator_web.Models
         [ForeignKey("Pg")]
         public int Pid { get; set; }
         public string Type { get; set; }
-        public string Url { get; set; }
+        public byte[] FileData { get; set; }
 
     }
 }
