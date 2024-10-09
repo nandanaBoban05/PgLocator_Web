@@ -36,7 +36,7 @@ namespace PgLocator_web.Controllers
         {
             var user = _context.User.FirstOrDefault(x => x.Uid == id);
             if (user != null)
-                return Ok();
+                return Ok(_context.User.ToList());
             else
                 return NoContent();
         }

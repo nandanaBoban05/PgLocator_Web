@@ -392,43 +392,59 @@ namespace PgLocator_web.Controllers
         }
 
 
-        //view pending pg
-        [HttpGet("searchpendingpg")]
-        public IActionResult searchpendingpg(string? pgname = null)
+       
+
+
+
+        [HttpGet("viewpendingpgd")]
+        public async Task<ActionResult<IEnumerable<object>>> GetPgs(string? pgname = null)
         {
-            // Check if _context is not null
-            if (_context == null)
-            {
-                return StatusCode(500, "Database context is not initialized.");
-            }
+            var pgDetailsQuery = from pg in _context.Pg
+                                 join user in _context.User on pg.Uid equals user.Uid
+                                 where pg.Status == "pending" // Filter for pending status
+                                 select new
+                                 {
+                                     pg.Pgid,
+                                     pg.Uid,
+                                     pg.Pgname,
+                                     pg.Description,
+                                     pg.Address,
+                                     pg.District,
+                                     pg.City,
+                                     pg.Latitude,
+                                     pg.Longitude,
+                                     pg.Pin,
+                                     pg.Gender_perference,
+                                     pg.Amentities,
+                                     pg.Foodavailable,
+                                     pg.Meal,
+                                     pg.Status,
+                                     pg.Rules,
+                                     UserEmail = user.Email // Accessing User's email directly
+                                 };
 
-            // Start with all pg whose status is pending 
-            var pgs = _context.Pg
-                .Where(u => u.Status.ToLower() == "pending")
-                .AsQueryable();
-
-            // Filter by pgname if provided
+            // Apply additional filtering by pgname if provided
             if (!string.IsNullOrEmpty(pgname))
             {
-                pgs = pgs.Where(u => u.Pgname.ToLower().Contains(pgname.ToLower()));
+                pgDetailsQuery = pgDetailsQuery.Where(pg => pg.Pgname.ToLower().Contains(pgname.ToLower()));
             }
 
-            // Convert filtered results to a list
-            var filteredpgs = pgs.ToList();
+            var pgDetails = await pgDetailsQuery.ToListAsync();
 
-            // If no pgs match, return a 404 NotFound response
-            if (!filteredpgs.Any())
+            // If no results match the criteria, return a 404 NotFound response
+            if (!pgDetails.Any())
             {
-                return NotFound("No pending pgs found matching the search criteria.");
+                return NotFound("No pending PGs found matching the search criteria.");
             }
 
-            // Return the filtered list of pgs
-            return Ok(filteredpgs);
+            return Ok(pgDetails);
         }
 
-
-
     }
-
 }
+
+
+
+
+
 
