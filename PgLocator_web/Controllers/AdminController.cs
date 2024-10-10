@@ -440,6 +440,52 @@ namespace PgLocator_web.Controllers
             return Ok(pgDetails);
         }
 
+
+
+        [HttpGet("viewapprovedpgd")]
+        public async Task<ActionResult<IEnumerable<object>>> GetApprovedPgs(string? pgname = null)
+        {
+            var pgDetailsQuery = from pg in _context.Pg
+                                 join user in _context.User on pg.Uid equals user.Uid
+                                 where pg.Status == "approved" // Filter for pending status
+                                 select new
+                                 {
+                                     pg.Pgid,
+                                     pg.Uid,
+                                     pg.Pgname,
+                                     pg.Description,
+                                     pg.Address,
+                                     pg.District,
+                                     pg.City,
+                                     pg.Latitude,
+                                     pg.Longitude,
+                                     pg.Pin,
+                                     pg.Gender_perference,
+                                     pg.Amentities,
+                                     pg.Foodavailable,
+                                     pg.Meal,
+                                     pg.Status,
+                                     pg.Rules,
+                                     UserEmail = user.Email // Accessing User's email directly
+                                 };
+
+            // Apply additional filtering by pgname if provided
+            if (!string.IsNullOrEmpty(pgname))
+            {
+                pgDetailsQuery = pgDetailsQuery.Where(pg => pg.Pgname.ToLower().Contains(pgname.ToLower()));
+            }
+
+            var pgDetails = await pgDetailsQuery.ToListAsync();
+
+            // If no results match the criteria, return a 404 NotFound response
+            if (!pgDetails.Any())
+            {
+                return NotFound("No pending PGs found matching the search criteria.");
+            }
+
+            return Ok(pgDetails);
+        }
+
     }
 }
 
