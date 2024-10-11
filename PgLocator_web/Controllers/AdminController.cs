@@ -83,10 +83,18 @@ namespace PgLocator_web.Controllers
             if (action.ToLower() == "approve")
             {
                 pg.Status = "Approved";
+                _context.Entry(pg).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok($"PG has been {action}d successfully.");
             }
             else if (action.ToLower() == "reject")
             {
                 pg.Status = "Rejected";
+                _context.Entry(pg).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok($"PG has been {action}d successfully.");
             }
             else
             {
