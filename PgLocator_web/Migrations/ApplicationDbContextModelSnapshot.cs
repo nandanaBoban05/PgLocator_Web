@@ -196,9 +196,6 @@ namespace PgLocator_web.Migrations
                     b.Property<int>("Pgid")
                         .HasColumnType("int");
 
-                    b.Property<int>("Pid")
-                        .HasColumnType("int");
-
                     b.Property<int>("Price")
                         .HasColumnType("int");
 

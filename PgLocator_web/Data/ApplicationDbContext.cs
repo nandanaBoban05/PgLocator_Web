@@ -16,7 +16,7 @@ namespace PgLocator_web.Data
         public DbSet<Media> Media { get; set; }
         public DbSet<Pg> Pg { get; set; }
         public DbSet<Review> Review { get; set; }
-        public DbSet<Room> Room { get; set; }
+        public DbSet<Room>  Room { get; set; }
 
     }
 }
