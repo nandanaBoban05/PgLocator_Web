@@ -86,7 +86,7 @@ namespace PgLocator_web.Controllers
                 _context.Entry(pg).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return Ok($"PG has been {action}d successfully.");
+                return Ok(new { message = "PG has been approved successfully." });
             }
             else if (action.ToLower() == "reject")
             {
@@ -94,11 +94,11 @@ namespace PgLocator_web.Controllers
                 _context.Entry(pg).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return Ok($"PG has been {action}d successfully.");
+                return Ok(new { message = "PG has been approved successfully." });
             }
             else
             {
-                return BadRequest("Invalid action. Use 'approve' or 'reject'");
+                return BadRequest(new { message = "Invalid action." });
             }
 
             // Update the PG's status
