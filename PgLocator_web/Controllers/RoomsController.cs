@@ -23,13 +23,19 @@ namespace PgLocator_web.Controllers
 
         // GET: api/Rooms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetRoom()
+        public async Task<ActionResult<IEnumerable<Room>>> GetRoom([FromQuery] int? pgid)
         {
+            if (pgid.HasValue)
+            {
+                // Filter rooms by Pgid if provided
+                return await _context.Room.Where(r => r.Pgid == pgid).ToListAsync();
+            }
+            // Return all rooms if no Pgid is specified
             return await _context.Room.ToListAsync();
         }
 
         // GET: api/Rooms/5
-        [HttpGet("{rid}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Room>> GetRoom(int id)
         {
             var room = await _context.Room.FindAsync(id);
@@ -43,13 +49,12 @@ namespace PgLocator_web.Controllers
         }
 
         // PUT: api/Rooms/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{rid}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutRoom(int id, Room room)
         {
             if (id != room.Rid)
             {
-                return BadRequest();
+                return BadRequest("Room ID mismatch.");
             }
 
             _context.Entry(room).State = EntityState.Modified;
@@ -74,26 +79,28 @@ namespace PgLocator_web.Controllers
         }
 
         // POST: api/Rooms
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Room>> PostRoom(Room room)
         {
+            // Add the new room to the database
             _context.Room.Add(room);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRoom", new { id = room.Rid }, room);
+            // Return the created room details with 201 status
+            return CreatedAtAction(nameof(GetRoom), new { id = room.Rid }, room);
         }
 
         // DELETE: api/Rooms/5
-        [HttpDelete("{rid}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
             var room = await _context.Room.FindAsync(id);
-            if (room == null) 
+            if (room == null)
             {
                 return NotFound();
             }
 
+            // Remove the room from the database
             _context.Room.Remove(room);
             await _context.SaveChangesAsync();
 
