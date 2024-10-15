@@ -171,7 +171,7 @@ namespace PgLocator_web.Controllers
         [HttpGet("GetReviews/{pgId}")]
         public IActionResult GetReviews(int pgId)
         {
-            var reviews = _context.Review.Where(r => r.Pid == pgId).ToList();
+            var reviews = _context.Review.Where(r => r.Pgid == pgId).ToList();
             return Ok(reviews);
         }
 
