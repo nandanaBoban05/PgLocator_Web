@@ -6,11 +6,13 @@ namespace PgLocator_web.Models
     public class Media
     {
         [Key]
-        public int Mid { get; set; }
-        [ForeignKey("Pg")]
-        public int Pid { get; set; }
-        public string Type { get; set; }
-        public byte[] FileData { get; set; }
+        public int MediaId { get; set; }
 
+        [ForeignKey("Pg")]
+        public int Pgid { get; set; }  
+
+        public string FilePath { get; set; } 
+
+        public virtual Pg Pg { get; set; } 
     }
 }

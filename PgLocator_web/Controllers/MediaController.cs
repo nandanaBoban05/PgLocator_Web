@@ -3,10 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PgLocator_web.Data;
 using PgLocator_web.Models;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace PgLocator_web.Controllers
 {
@@ -15,65 +11,32 @@ namespace PgLocator_web.Controllers
     public class MediaController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public MediaController(ApplicationDbContext context)
+        public MediaController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        // GET: api/Media
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Media>>> GetMedia()
-        {
-            return await _context.Media.ToListAsync();
-        }
-
-        // GET: api/Media/ByPgId/5
-        [HttpGet("ByPgId/{pgId}")]
-        public async Task<ActionResult<IEnumerable<Media>>> GetMediaByPgId(int pgId)
-        {
-            var media = await _context.Media.Where(m => m.Pid == pgId).ToListAsync();
-            if (media == null || !media.Any())
-            {
-                return NotFound();
-            }
-            return media;
-        }
-
-        // GET: api/Media/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Media>> GetMedia(int id)
-        {
-            var media = await _context.Media.FindAsync(id);
-            if (media == null)
-            {
-                return NotFound();
-            }
-            return media;
-        }
-
-        // POST: api/Media/UploadMedia (save file as byte array)
-        [HttpPost("UploadMedia")]
+        // Upload media
+        [HttpPost("upload/{pgId}")]
         public async Task<IActionResult> UploadMedia(int pgId, IFormFile file)
         {
             if (file == null || file.Length == 0)
-            {
                 return BadRequest("No file uploaded.");
-            }
 
-            byte[] fileBytes;
-            using (var memoryStream = new MemoryStream())
+            var filePath = Path.Combine(_environment.ContentRootPath, "uploads", file.FileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(memoryStream);
-                fileBytes = memoryStream.ToArray();
+                await file.CopyToAsync(stream);
             }
 
-            // Create a new media record and save the byte array in FileData
             var media = new Media
             {
-                Pid = pgId,
-                Type = file.ContentType,  // Store the media type (image, video, etc.)
-                FileData = fileBytes // Save the byte array
+                Pgid = pgId,
+                FilePath = filePath
             };
 
             _context.Media.Add(media);
@@ -82,44 +45,29 @@ namespace PgLocator_web.Controllers
             return Ok(media);
         }
 
-        // PUT: api/Media/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMedia(int id, Media media)
+        // Get media by PG ID
+        [HttpGet("{pgId}")]
+        public async Task<IActionResult> GetMediaByPgId(int pgId)
         {
-            if (id != media.Mid)
-            {
-                return BadRequest();
-            }
+            var mediaList = await _context.Media
+                .Where(m => m.Pgid == pgId)
+                .ToListAsync();
 
-            _context.Entry(media).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MediaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(mediaList);
         }
 
-        // DELETE: api/Media/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMedia(int id)
+        // Delete media
+        [HttpDelete("{mediaId}")]
+        public async Task<IActionResult> DeleteMedia(int mediaId)
         {
-            var media = await _context.Media.FindAsync(id);
+            var media = await _context.Media.FindAsync(mediaId);
             if (media == null)
-            {
                 return NotFound();
+
+            // Delete the file from the server
+            if (System.IO.File.Exists(media.FilePath))
+            {
+                System.IO.File.Delete(media.FilePath);
             }
 
             _context.Media.Remove(media);
@@ -127,10 +75,6 @@ namespace PgLocator_web.Controllers
 
             return NoContent();
         }
-
-        private bool MediaExists(int id)
-        {
-            return _context.Media.Any(e => e.Mid == id);
-        }
-    }
+    
+}
 }

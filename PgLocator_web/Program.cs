@@ -34,6 +34,7 @@ namespace PgLocator_web
                     });
             });
 
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -45,7 +46,7 @@ namespace PgLocator_web
 
             app.UseHttpsRedirection();
 
-
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseCors("AllowSpecificOrigins");
 
