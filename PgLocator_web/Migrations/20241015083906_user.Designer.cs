@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PgLocator_web.Data;
 
@@ -11,9 +12,11 @@ using PgLocator_web.Data;
 namespace PgLocator_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241015083906_user")]
+    partial class user
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,7 +156,7 @@ namespace PgLocator_web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Rid"));
 
-                    b.Property<int>("Pgid")
+                    b.Property<int>("Pid")
                         .HasColumnType("int");
 
                     b.Property<string>("Rating")
@@ -163,7 +166,7 @@ namespace PgLocator_web.Migrations
                     b.Property<DateTime>("Reviewdate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Reviewtext")
+                    b.Property<string>("Reviewteaxt")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using PgLocator_web.Data;
 using PgLocator_web.Models;
 
@@ -48,15 +49,17 @@ namespace PgLocator_web.Controllers
             return room;
         }
 
-        // PUT: api/Rooms/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRoom(int id, Room room)
+        public async Task<IActionResult> PutRoom(int id, [FromBody] Room room)
         {
             if (id != room.Rid)
             {
                 return BadRequest("Room ID mismatch.");
             }
 
+            Console.WriteLine($"Updating room: {JsonConvert.SerializeObject(room)}");
+
+            // Mark the room entity as modified
             _context.Entry(room).State = EntityState.Modified;
 
             try
@@ -71,12 +74,14 @@ namespace PgLocator_web.Controllers
                 }
                 else
                 {
-                    throw;
+                    throw; // Rethrow the exception for unhandled cases
                 }
             }
 
-            return NoContent();
+            return NoContent(); // Return 204 No Content for a successful update
         }
+
+
 
         // POST: api/Rooms
         [HttpPost]

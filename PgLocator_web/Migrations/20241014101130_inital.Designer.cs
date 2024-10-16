@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PgLocator_web.Data;
 
@@ -11,9 +12,11 @@ using PgLocator_web.Data;
 namespace PgLocator_web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241014101130_inital")]
+    partial class inital
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,11 +62,11 @@ namespace PgLocator_web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Mid"));
 
-                    b.Property<byte[]>("FileData")
+                    b.Property<string>("FileData")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Pid")
+                    b.Property<int>("Pgid")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -163,7 +166,7 @@ namespace PgLocator_web.Migrations
                     b.Property<DateTime>("Reviewdate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Reviewtext")
+                    b.Property<string>("Reviewteaxt")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -224,9 +227,11 @@ namespace PgLocator_web.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Uid"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Chatlink")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Dob")
@@ -242,6 +247,7 @@ namespace PgLocator_web.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
@@ -253,6 +259,7 @@ namespace PgLocator_web.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -264,6 +271,7 @@ namespace PgLocator_web.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Whatsapp")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Uid");
