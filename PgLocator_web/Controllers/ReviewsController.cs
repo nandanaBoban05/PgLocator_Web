@@ -125,6 +125,21 @@ namespace PgLocator_web.Controllers
 
             return CreatedAtAction("GetReview", new { id = review.Rid }, review);
         }
+        // GET: api/Reviews/pgid/{pgid}
+        [HttpGet("pgid/{pgid}")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetReviewsByPgid(int pgid)
+        {
+            var reviews = await _context.Review
+                .Where(r => r.Pgid == pgid)
+                .ToListAsync();
+
+            if (reviews == null || reviews.Count == 0)
+            {
+                return NotFound(new { message = "No reviews found for this PG." });
+            }
+
+            return Ok(reviews);
+        }
 
     }
 }
