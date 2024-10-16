@@ -13,7 +13,7 @@ namespace PgLocator_web.Models
         
         [ForeignKey("User")]
         public int Uid { get; set; }
-        public string Rating { get; set; }
+        public int Rating { get; set; }
         public string Reviewtext { get; set; }
         public DateTime Reviewdate { get; set; }
     }
