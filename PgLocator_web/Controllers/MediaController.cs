@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PgLocator_web.Data;
 using PgLocator_web.Models;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PgLocator_web.Controllers
 {
@@ -26,24 +29,37 @@ namespace PgLocator_web.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var filePath = Path.Combine(_environment.ContentRootPath, "uploads", file.FileName);
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+
+            // Check if directory exists, if not, create it
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"pg{pgId}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
+            var fileUrl = $"{Request.Scheme}://{Request.Host}/uploads/{fileName}";
+
+            // Save the file path or URL in the database if needed
             var media = new Media
             {
                 Pgid = pgId,
-                FilePath = filePath
+                FilePath = fileUrl // Save the file URL
             };
 
             _context.Media.Add(media);
             await _context.SaveChangesAsync();
 
-            return Ok(media);
+            return Ok(new { fileUrl });
         }
+
 
         // Get media by PG ID
         [HttpGet("{pgId}")]
@@ -65,16 +81,17 @@ namespace PgLocator_web.Controllers
                 return NotFound();
 
             // Delete the file from the server
-            if (System.IO.File.Exists(media.FilePath))
+            var fullFilePath = Path.Combine(_environment.WebRootPath, media.FilePath);
+            if (System.IO.File.Exists(fullFilePath))
             {
-                System.IO.File.Delete(media.FilePath);
+                System.IO.File.Delete(fullFilePath);
             }
 
+            // Remove the media record from the database
             _context.Media.Remove(media);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
-    
-}
+    }
 }

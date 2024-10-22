@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -84,7 +86,7 @@ namespace PgLocator_web.Controllers
             return CreatedAtAction("GetReview", new { id = review.Rid }, review);
         }
 
-        // DELETE: api/Reviews/5
+       // DELETE: api/Reviews/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReview(int id)
         {
@@ -141,5 +143,104 @@ namespace PgLocator_web.Controllers
             return Ok(reviews);
         }
 
+
+
+        //respond to review:
+        [HttpPut("respond/{reviewId}")]
+        public async Task<IActionResult> RespondToReview(int reviewId, [FromBody] string response)
+        {
+            var review = await _context.Review.FindAsync(reviewId);
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            review.Response = response;
+            _context.Review.Update(review);
+            await _context.SaveChangesAsync();
+
+            return Ok(review);
+        }
+
+
+
+        //notifying admin a report of a review
+
+        [HttpPut("report/{reviewId}")]
+        public async Task<IActionResult> ReportReviewToAdmin(int reviewId)
+        {
+            var review = await _context.Review.FindAsync(reviewId);
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            review.IsReported = true;
+            review.ReportedToAdmin = true;  // Set this field to true to notify admin
+            _context.Review.Update(review);
+            await _context.SaveChangesAsync();
+
+            // Optionally, you can trigger an email notification or a system alert here
+            NotifyAdmin(review);
+
+            return Ok(review);
+        }
+
+        // Dummy method for notifying admin (this can be an email, log, or entry in the database)
+        private void NotifyAdmin(Review review)
+        {
+            try
+            {
+                var fromAddress = new MailAddress("pgowner@example.com", "PG Owner");
+                var toAddress = new MailAddress("admin@example.com", "Admin");
+                const string subject = "Review Report Notification";
+                string body = $"A review (ID: {review.Rid}) for PG ID: {review.Pgid} has been reported by the owner.";
+
+                var smtpClient = new SmtpClient
+                {
+                    Host = "smtp.mailtrap.io", // or your SMTP host
+                    Port = 587,
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential("username", "password") // Provide SMTP credentials
+                };
+
+                using (var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = subject,
+                    Body = body
+                })
+                {
+                    smtpClient.Send(message);
+                }
+            }
+            catch (SmtpException smtpEx)
+            {
+                // Log or handle specific SMTP errors here
+                Console.WriteLine($"SMTP Exception: {smtpEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Log or handle general errors here
+                Console.WriteLine($"General Exception: {ex.Message}");
+            }
+        }
+
+
+
+        //get reported
+        // GET: api/Reviews/reported-reviews
+        [HttpGet("reported-reviews")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetReportedReviews()
+        {
+            var reportedReviews = await _context.Review
+                .Where(r => r.ReportedToAdmin == true)
+                .ToListAsync();
+
+            return Ok(reportedReviews);
+        }
+
+
+
     }
+
 }
