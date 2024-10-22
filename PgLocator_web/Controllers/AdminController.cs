@@ -18,26 +18,21 @@ namespace PgLocator_web.Controllers
         {
             _context = context;
         }
-
-        // Approve or reject PG Owner
         [HttpPost]
         [Route("ApproveRejectPgOwner")]
         public async Task<IActionResult> ApproveRejectPgOwner(int userId, string action)
         {
-            // Find the user (PG Owner) by userId
             var user = await _context.User.FindAsync(userId);
             if (user == null)
             {
-                return NotFound("PG Owner not found");
+                return NotFound(new { message = "PG Owner not found" });
             }
 
-            // Check if the user role is PG Owner
             if (user.Role.ToLower() != "pgowner")
             {
-                return BadRequest("User is not a PG Owner");
+                return BadRequest(new { message = "User is not a PG Owner" });
             }
 
-            // Admin action: Approve or Reject the PG Owner
             if (action.ToLower() == "approve")
             {
                 user.Status = "Approved";
@@ -48,15 +43,16 @@ namespace PgLocator_web.Controllers
             }
             else
             {
-                return BadRequest("Invalid action. Use 'approve' or 'reject'");
+                return BadRequest(new { message = "Invalid action. Use 'approve' or 'reject'" });
             }
 
-            // Update the user's status
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return Ok($"PG Owner has been {action}d successfully.");
+            return Ok(new { message = $"PG Owner has been {action}d successfully." });
         }
+
+    
 
 
 
@@ -94,7 +90,7 @@ namespace PgLocator_web.Controllers
                 _context.Entry(pg).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "PG has been approved successfully." });
+                return Ok(new { message = "PG has been rejected successfully." });
             }
             else
             {
