@@ -490,7 +490,19 @@ namespace PgLocator_web.Controllers
             return Ok(pgDetails);
         }
 
-    }
+        // GET: api/Admin/reported-reviews
+        [HttpGet("reported-reviews")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetReportedReviews()
+        {
+            var reportedReviews = await _context.Review
+                .Where(r => r.ReportedToAdmin == true)
+                .ToListAsync();
+
+            return Ok(reportedReviews);
+        }
+    
+
+}
 }
 
 

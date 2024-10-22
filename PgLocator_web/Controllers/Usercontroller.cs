@@ -32,13 +32,13 @@ namespace PgLocator_web.Controllers
         // Get users by Id
         [HttpGet]
         [Route("GetUser/{id}")]
-        public IActionResult GetUsers(int id)
+        public IActionResult GetUser(int id)
         {
             var user = _context.User.FirstOrDefault(x => x.Uid == id);
             if (user != null)
-                return Ok(_context.User.ToList());
+                return Ok(user);
             else
-                return NoContent();
+                return NotFound(new { message = "User not found" });
         }
 
 
@@ -56,9 +56,13 @@ namespace PgLocator_web.Controllers
             var objUser = _context.User.FirstOrDefault(x => x.Email == user.Email);
             if (objUser == null)
             {
-                // Default status for users is "Active", but for PgOwners, it's "Pending" until admin approves
-                string Status = user.Role == "PgOwner" ? "Pending" : "Active";
+                // Log the role to confirm its value
+                Console.WriteLine($"Registering user with role: {user.Role}");
 
+                // Default status for users is "Active", but for PgOwners, it's "Pending" until admin approves
+                string Status = string.Equals(user.Role?.Trim(), "PgOwner", StringComparison.OrdinalIgnoreCase) ? "Pending" : "Active";
+
+                // Add the new user to the context
                 _context.User.Add(new User
                 {
                     FirstName = user.FirstName,
@@ -74,17 +78,21 @@ namespace PgLocator_web.Controllers
                     Status = Status,
                     Password = user.Password,
                 });
+
+                // Save changes to the database
                 _context.SaveChanges();
 
-                if (user.Role == "PgOwner")
+                // Return appropriate message based on the user's role
+                if (Status == "Pending")
                 {
                     return Ok("PgOwner Registered Successfully. Awaiting admin approval.");
                 }
 
-                return Ok(new {message= "User Registered Successfully" });
+                return Ok(new { message = "User Registered Successfully" });
             }
             else
             {
+                // Return error message if the user already exists
                 return BadRequest("User already exists");
             }
         }

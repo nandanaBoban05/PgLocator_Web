@@ -16,5 +16,8 @@ namespace PgLocator_web.Models
         public int Rating { get; set; }
         public string Reviewtext { get; set; }
         public DateTime Reviewdate { get; set; }
+        public string? Response { get; set; }
+        public bool? IsReported { get; set; }  
+        public bool? ReportedToAdmin { get; set; }
     }
 }
