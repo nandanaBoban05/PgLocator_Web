@@ -22,7 +22,7 @@ namespace PgLocator_web.Controllers
             _environment = environment;
         }
 
-        // Upload media
+      
         [HttpPost("upload/{pgId}")]
         public async Task<IActionResult> UploadMedia(int pgId, IFormFile file)
         {
@@ -31,13 +31,16 @@ namespace PgLocator_web.Controllers
 
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
 
-            // Check if directory exists, if not, create it
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            var fileName = $"pg{pgId}{Path.GetExtension(file.FileName)}";
+            // Get the count of existing files for this PG
+            var existingMedia = await _context.Media.Where(m => m.Pgid == pgId).ToListAsync();
+            var fileCount = existingMedia.Count + 1; // Increment for new file
+
+            var fileName = $"pg{pgId}_{fileCount}{Path.GetExtension(file.FileName)}";
             var filePath = Path.Combine(uploadsFolder, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -47,11 +50,10 @@ namespace PgLocator_web.Controllers
 
             var fileUrl = $"{Request.Scheme}://{Request.Host}/uploads/{fileName}";
 
-            // Save the file path or URL in the database if needed
             var media = new Media
             {
                 Pgid = pgId,
-                FilePath = fileUrl // Save the file URL
+                FilePath = fileUrl
             };
 
             _context.Media.Add(media);
@@ -59,6 +61,7 @@ namespace PgLocator_web.Controllers
 
             return Ok(new { fileUrl });
         }
+
 
 
         // Get media by PG ID
